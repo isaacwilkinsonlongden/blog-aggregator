@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"os"
 
 	"github.com/isaacwilkinsonlongden/blog-aggregator/internal/config"
 )
@@ -12,17 +12,28 @@ func main() {
 	if err != nil {
 		log.Fatalf("error reading config: %v", err)
 	}
-	fmt.Printf("Read config: %+v\n", cfg)
 
-	err = cfg.SetUser("Isaac")
-	if err != nil {
-		log.Fatalf("couldn't set current user: %v", err)
+	s := state{cfg: &cfg}
+	cmds := commands{
+		handlers: make(map[string]func(*state, command) error),
 	}
 
-	cfg, err = config.Read()
-	if err != nil {
-		log.Fatalf("error reading config: %v", err)
+	cmds.register("login", handlerLogin)
+
+	if len(os.Args) < 2 {
+		log.Fatal("Usage: cli <command> [args...]")
 	}
 
-	fmt.Printf("Read config again: %+v\n", cfg)
+	cmdName := os.Args[1]
+	cmdArgs := os.Args[2:]
+
+	cmd := command{
+		name: cmdName,
+		args: cmdArgs,
+	}
+
+	err = cmds.run(&s, cmd)
+	if err != nil {
+		log.Fatalf("error running command: %v", err)
+	}
 }

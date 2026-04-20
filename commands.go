@@ -2,13 +2,7 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/isaacwilkinsonlongden/blog-aggregator/internal/config"
 )
-
-type state struct {
-	cfg *config.Config
-}
 
 type command struct {
 	name string
